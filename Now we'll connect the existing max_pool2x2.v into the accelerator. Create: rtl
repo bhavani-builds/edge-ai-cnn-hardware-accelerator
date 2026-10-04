@@ -1,0 +1,96 @@
+module cnn_pooling_unit #(
+    parameter DATA_WIDTH = 32
+)(
+    input wire clk,
+    input wire reset,
+    input wire enable,
+
+    input wire signed [DATA_WIDTH-1:0] data_in,
+    input wire data_valid,
+
+    output reg signed [DATA_WIDTH-1:0] pool_out,
+    output reg pool_valid
+);
+
+    reg signed [DATA_WIDTH-1:0] value0;
+    reg signed [DATA_WIDTH-1:0] value1;
+    reg signed [DATA_WIDTH-1:0] value2;
+    reg signed [DATA_WIDTH-1:0] value3;
+
+    reg [1:0] sample_count;
+
+    reg signed [DATA_WIDTH-1:0] max_value;
+
+
+    always @(posedge clk) begin
+
+        if (reset) begin
+
+            value0 <= 0;
+            value1 <= 0;
+            value2 <= 0;
+            value3 <= 0;
+
+            sample_count <= 0;
+
+            pool_out <= 0;
+            pool_valid <= 1'b0;
+
+        end
+
+        else if (enable) begin
+
+            pool_valid <= 1'b0;
+
+            if (data_valid) begin
+
+                case (sample_count)
+
+                    2'd0: begin
+                        value0 <= data_in;
+                        sample_count <= 2'd1;
+                    end
+
+                    2'd1: begin
+                        value1 <= data_in;
+                        sample_count <= 2'd2;
+                    end
+
+                    2'd2: begin
+                        value2 <= data_in;
+                        sample_count <= 2'd3;
+                    end
+
+                    2'd3: begin
+
+                        value3 <= data_in;
+
+                        // Find maximum of four values
+                        max_value = value0;
+
+                        if (value1 > max_value)
+                            max_value = value1;
+
+                        if (value2 > max_value)
+                            max_value = value2;
+
+                        if (data_in > max_value)
+                            max_value = data_in;
+
+                        pool_out <= max_value;
+
+                        pool_valid <= 1'b1;
+
+                        sample_count <= 2'd0;
+
+                    end
+
+                endcase
+
+            end
+
+        end
+
+    end
+
+endmodule
