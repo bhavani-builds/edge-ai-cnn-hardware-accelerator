@@ -1,0 +1,206 @@
+module systolic_array_3x3 #(
+    parameter DATA_WIDTH = 8,
+    parameter ACC_WIDTH  = 32
+)(
+    input wire clk,
+    input wire reset,
+    input wire enable,
+
+    input wire signed [DATA_WIDTH-1:0] activation_in0,
+    input wire signed [DATA_WIDTH-1:0] activation_in1,
+    input wire signed [DATA_WIDTH-1:0] activation_in2,
+
+    input wire signed [DATA_WIDTH-1:0] weight_in0,
+    input wire signed [DATA_WIDTH-1:0] weight_in1,
+    input wire signed [DATA_WIDTH-1:0] weight_in2,
+
+    output wire signed [ACC_WIDTH-1:0] result00,
+    output wire signed [ACC_WIDTH-1:0] result01,
+    output wire signed [ACC_WIDTH-1:0] result02,
+
+    output wire signed [ACC_WIDTH-1:0] result10,
+    output wire signed [ACC_WIDTH-1:0] result11,
+    output wire signed [ACC_WIDTH-1:0] result12,
+
+    output wire signed [ACC_WIDTH-1:0] result20,
+    output wire signed [ACC_WIDTH-1:0] result21,
+    output wire signed [ACC_WIDTH-1:0] result22
+);
+
+    // Activation flow: left -> right
+    wire signed [DATA_WIDTH-1:0] a00;
+    wire signed [DATA_WIDTH-1:0] a01;
+    wire signed [DATA_WIDTH-1:0] a02;
+
+    wire signed [DATA_WIDTH-1:0] a10;
+    wire signed [DATA_WIDTH-1:0] a11;
+    wire signed [DATA_WIDTH-1:0] a12;
+
+    wire signed [DATA_WIDTH-1:0] a20;
+    wire signed [DATA_WIDTH-1:0] a21;
+    wire signed [DATA_WIDTH-1:0] a22;
+
+    // Weight flow: top -> bottom
+    wire signed [DATA_WIDTH-1:0] w00;
+    wire signed [DATA_WIDTH-1:0] w01;
+    wire signed [DATA_WIDTH-1:0] w02;
+
+    wire signed [DATA_WIDTH-1:0] w10;
+    wire signed [DATA_WIDTH-1:0] w11;
+    wire signed [DATA_WIDTH-1:0] w12;
+
+    wire signed [DATA_WIDTH-1:0] w20;
+    wire signed [DATA_WIDTH-1:0] w21;
+    wire signed [DATA_WIDTH-1:0] w22;
+
+
+    // ------------------------------------------------
+    // Row 0
+    // ------------------------------------------------
+
+    processing_element #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+    ) PE00 (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .activation_in(activation_in0),
+        .weight_in(weight_in0),
+        .acc_in(0),
+        .activation_out(a00),
+        .weight_out(w00),
+        .acc_out(result00)
+    );
+
+    processing_element #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+    ) PE01 (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .activation_in(a00),
+        .weight_in(weight_in1),
+        .acc_in(0),
+        .activation_out(a01),
+        .weight_out(w01),
+        .acc_out(result01)
+    );
+
+    processing_element #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+    ) PE02 (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .activation_in(a01),
+        .weight_in(weight_in2),
+        .acc_in(0),
+        .activation_out(a02),
+        .weight_out(w02),
+        .acc_out(result02)
+    );
+
+
+    // ------------------------------------------------
+    // Row 1
+    // ------------------------------------------------
+
+    processing_element #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+    ) PE10 (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .activation_in(activation_in1),
+        .weight_in(w00),
+        .acc_in(0),
+        .activation_out(a10),
+        .weight_out(w10),
+        .acc_out(result10)
+    );
+
+    processing_element #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+    ) PE11 (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .activation_in(a10),
+        .weight_in(w01),
+        .acc_in(0),
+        .activation_out(a11),
+        .weight_out(w11),
+        .acc_out(result11)
+    );
+
+    processing_element #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+    ) PE12 (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .activation_in(a11),
+        .weight_in(w02),
+        .acc_in(0),
+        .activation_out(a12),
+        .weight_out(w12),
+        .acc_out(result12)
+    );
+
+
+    // ------------------------------------------------
+    // Row 2
+    // ------------------------------------------------
+
+    processing_element #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+    ) PE20 (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .activation_in(activation_in2),
+        .weight_in(w10),
+        .acc_in(0),
+        .activation_out(a20),
+        .weight_out(w20),
+        .acc_out(result20)
+    );
+
+    processing_element #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+    ) PE21 (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .activation_in(a20),
+        .weight_in(w11),
+        .acc_in(0),
+        .activation_out(a21),
+        .weight_out(w21),
+        .acc_out(result21)
+    );
+
+    processing_element #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+    ) PE22 (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .activation_in(a21),
+        .weight_in(w12),
+        .acc_in(0),
+        .activation_out(a22),
+        .weight_out(w22),
+        .acc_out(result22)
+    );
+
+endmodule
